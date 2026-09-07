@@ -3,10 +3,10 @@
 ## Ngày 1 — Chủ Nhật, 06/09/2026
 
 - Làm gì hôm nay:
-    Cài đặt và học cách sử dụng Docker, Node.js, Express khi tạo dự án
-    Tạo repo github của dự án
-    Học những syntax cơ bản của JavaScript như arrow function, template literal, destructuring, spread, try-catch, cú pháp async/await
-    Học cách dùng Express như tại sao phải tách app.js/server.js; route, middleware là gì.
+    1. Cài đặt và học cách sử dụng Docker, Node.js, Express khi tạo dự án
+    2. Tạo repo github của dự án
+    3. Học những syntax cơ bản của JavaScript như arrow function, template literal, destructuring, spread, try-catch, cú pháp async/await
+    4. Học cách dùng Express như tại sao phải tách app.js/server.js; route, middleware là gì.
 - Thời gian: 6 giờ
 - Vướng gì: 
     1. Đầu tiên khá mông lung trong việc nên học cái gì đầu tiên.
@@ -31,11 +31,17 @@
 ## Ngày 2 — Thứ Hai, 07/09/2026
 
 - Làm gì hôm nay:
-- Thời gian: ___ giờ
-- Vướng gì:
+    1. Vẽ ERD cho bài
+    2. Cấu hình kết nối database bằng Sequelize
+- Thời gian: 10 giờ
+- Vướng gì: 
 - Giải quyết ra sao (hoặc chưa):
 - Dùng AI ở đâu:
+    1. Review và tìm điểm cần cải thiện sau khi vẽ xong ERD.
+    - Link: https://chatgpt.com/share/6a9ebb55-4d40-83ec-8eac-d179b7a1a075
+    2. Tìm hiểu cách cấu hình kết nối với database bằng Sequelize 
 - Mai làm gì:
+    1. Làm phần A1 => A5
 
 ## Ngày 3 — Thứ Ba, 08/09/2026
 
