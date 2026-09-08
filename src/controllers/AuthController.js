@@ -1,4 +1,6 @@
 import {register as registerService} from "../services/AuthService.js";
+import {login as loginService} from "../services/AuthService.js";
+
 export const register = async (req, res) => {
 
     // lay du lieu tu request body
@@ -10,4 +12,15 @@ export const register = async (req, res) => {
     // tra ve ket qua cho client
     res.status(201).json(result);
     
+}
+
+export const login = async (req, res) => {
+    // lay du lieu tu request body
+    const { phone_number, password } = req.body;
+
+    // goi AuthService de xu ly dang nhap nguoi dung
+    const result = await loginService({ phone_number, password });
+
+    // tra ve ket qua cho client
+    res.status(200).json(result);
 }

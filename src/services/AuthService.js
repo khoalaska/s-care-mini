@@ -2,7 +2,7 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import Apartment from "../models/Apartment.js";
 import Role from "../models/Role.js";
-
+import jwt from "jsonwebtoken";
 
 export const register = async ({ phone_number, password, full_name,apartment_code }) => {
 
@@ -75,4 +75,69 @@ export const register = async ({ phone_number, password, full_name,apartment_cod
     return {
         message: "Ban đã đăng ký thành công",
     };
+
+   
 }
+
+ export const login = async ({ phone_number, password }) => {
+
+        // validate dữ liệu đầu vào
+        if (!phone_number || !password) {
+            throw new Error("Vui lòng nhập đầy đủ thông tin");
+        }
+         // validate format số điện thoại
+        const phoneNumberRegex = /^\d{10}$/;
+        if (!phoneNumberRegex.test(phone_number)) {
+        throw new Error("Số điện thoại không hợp lệ");
+        }
+
+         // validate password
+        if (password.length < 6) {
+        throw new Error("Mật khẩu phải có ít nhất 6 ký tự");
+        }
+
+        // tìm user theo số điện thoại
+        const user = await User.findOne({
+            where: {
+                phone_number: phone_number
+            }
+        });
+
+        // kiểm tra số điện thoại tồn tại
+        if (!user) {
+            throw new Error("Số điện thoại không tồn tại");
+        }
+
+        // kiểm tra mật khẩu
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            throw new Error("Mật khẩu không đúng");
+        }
+
+        // lấy role của user
+        const role = await Role.findByPk(user.role_id);
+
+        //kiểm tra role của user
+        if (!role) {
+            throw new Error("Role không tồn tại");
+        }
+
+        // tạo token
+        const token = jwt.sign(
+            {
+                userId: user.id,
+                role: role.name
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "1h"
+            }        
+        );
+
+
+        // trả kết quả
+        return {
+            message: "Đăng nhập thành công",
+            access_token: token,
+        }
+    }
