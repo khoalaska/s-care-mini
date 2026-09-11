@@ -141,3 +141,58 @@ export const register = async ({ phone_number, password, full_name,apartment_cod
             access_token: token,
         }
     }
+
+    export const createTechnician = async ({ phone_number, password, full_name}) => {
+
+    // validate dữ liệu đầu vào
+    if (!phone_number || !password || !full_name) {
+        throw new Error("Vui lòng nhập đầy đủ thông tin");
+    }
+
+     // validate password
+    if (password.length < 6) {
+        throw new Error("Mật khẩu phải có ít nhất 6 ký tự");
+    }
+
+    // validate full name
+    const fullNameRegex = /^[a-zA-ZÀ-ỹ\s]+$/;
+    if (!fullNameRegex.test(full_name)) {
+        throw new Error("Họ và tên không hợp lệ");
+    }
+
+    // validate format số điện thoại
+    const phoneNumberRegex = /^\d{10}$/;
+    if (!phoneNumberRegex.test(phone_number)) {
+        throw new Error("Số điện thoại không hợp lệ");
+    }
+
+    // kiểm tra số điện thoại đã tồn tại
+    const existingUser = await User.findOne({
+        where: {
+            phone_number: phone_number
+        }
+    });
+    if (existingUser) {
+        throw new Error("Số điện thoại đã tồn tại");
+    }
+
+    // hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // tạo user
+    const user = await User.create({
+        phone_number,
+        password: hashedPassword,
+        full_name,
+        role_id: (await Role.findOne({where: {name: 'TECHNICIAN'}})).id
+    });
+
+
+
+    // trả kết quả
+    return {
+        message: "Ban đã đăng ký thành công",
+    };
+
+   
+}

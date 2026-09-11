@@ -46,9 +46,46 @@
 ## Ngày 3 — Thứ Ba, 08/09/2026
 
 - Làm gì hôm nay:
-- Thời gian: ___ giờ
+    1. Hoàn thành phần A1
+- Thời gian: 5 giờ
 - Vướng gì:
+    1. Làm phần role middlewares
 - Giải quyết ra sao (hoặc chưa):
+    1. Xem code gợi ý từ AI
 - Dùng AI ở đâu:
+    1. Gen code gợi ý cho phần RoleMiddleware
 - Mai làm gì:
+    1. Hoàn thành phần A2
+
+## Ngày 4 — Thứ Tư, 09/09/2026
+
+- Làm gì hôm nay:
+    1. Không làm gì 
+- Lí do: có buổi tập trung trên trường + thiếu tập trung khi làm.
+- Mai làm gì:
+    1. Hoàn thành phần A2, A3
+
+## Ngày 5 — Thứ Tư, 10/09/2026
+
+- Làm gì hôm nay:
+    1. Không làm gì 
+- Lí do: thiếu tập trung và thiếu kỷ luật khi làm.
+- Mai làm gì:
+    1. Hoàn thành phần A2, A3
+
+## Ngày 6 — Thứ Tư, 11/09/2026
+
+- Làm gì hôm nay:
+    1. 
+- Thời gian:  giờ
+- Vướng gì:
+    1. 
+- Giải quyết ra sao (hoặc chưa):
+    1. 
+- Dùng AI ở đâu:
+    1. 
+- Mai làm gì:
+    1. 
+
+
 ## Link kiến thức mới học được: https://docs.google.com/document/d/1MB_GAstYFW-BX8b8Tm7GKE1E-0eIJXIJfm6_qwizyeg/edit?usp=sharing

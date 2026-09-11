@@ -2,7 +2,7 @@
 
 | # | Yêu cầu | Trạng thái | Lý do (nếu chưa xong) |
 |---|---|---|---|
-| A1 | Xác thực & phân quyền |Chưa làm |Đang tìm hiểu cách làm |
+| A1 | Xác thực & phân quyền |hoàn thành | |
 | A2 | Căn hộ & cư dân | | |
 | A3 | Yêu cầu (Request) | | |
 | A4 | Vòng đời trạng thái | | |
