@@ -65,7 +65,7 @@
 - Mai làm gì:
     1. Hoàn thành phần A2, A3
 
-## Ngày 5 — Thứ Tư, 10/09/2026
+## Ngày 5 — Thứ Năm, 10/09/2026
 
 - Làm gì hôm nay:
     1. Không làm gì 
@@ -73,7 +73,27 @@
 - Mai làm gì:
     1. Hoàn thành phần A2, A3
 
-## Ngày 6 — Thứ Tư, 11/09/2026
+## Ngày 6 — Thứ Sáu, 11/09/2026
+
+- Làm gì hôm nay:
+    1. Không làm gì 
+- Lí do: thiếu tập trung và thiếu kỷ luật khi làm.
+- Mai làm gì:
+    1. Hoàn thành phần A2, A3
+## Ngày 7 — Thứ Bảy, 12/09/2026
+
+- Làm gì hôm nay:
+    1. Hoàn thành phần create apartment
+- Thời gian: 0,5 giờ
+- Vướng gì:
+    1. không có gì
+- Giải quyết ra sao (hoặc chưa):
+    1. không có gì
+- Dùng AI ở đâu:
+    1. review lại code
+- Mai làm gì:
+    1. Hoàn thành tất cả
+## Ngày 8 — Chủ Nhật, 13/09/2026
 
 - Làm gì hôm nay:
     1. 
@@ -86,6 +106,8 @@
     1. 
 - Mai làm gì:
     1. 
+
+
 
 
 ## Link kiến thức mới học được: https://docs.google.com/document/d/1MB_GAstYFW-BX8b8Tm7GKE1E-0eIJXIJfm6_qwizyeg/edit?usp=sharing
