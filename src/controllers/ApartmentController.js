@@ -1,7 +1,8 @@
 
 import {createApartment as createApartmentService,
         getApartments as getApartmentsService,
-        updateApartment as updateApartmentService
+        updateApartment as updateApartmentService,
+        deleteApartment as deleteApartmentService
 } from "../services/ApartmentService.js"
 
 export const createApartment = async(req, res) => {
@@ -42,3 +43,12 @@ export const updateApartment = async (req, res) => {
 
     res.status(200).json(result);
 }
+
+export const deleteApartment = async (req, res) => {
+    const { id } = req.params;
+
+    const result = await deleteApartmentService(id);
+
+    res.status(200).json(result);
+}
+

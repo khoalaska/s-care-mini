@@ -1,5 +1,6 @@
 import Apartment from "../models/Apartment.js";
 import { Op } from "sequelize";
+import User from "../models/User.js";
 
  export const createApartment = async ({code, floor, area, status}) => {
     // kiem tra nhap input
@@ -188,4 +189,33 @@ export const updateApartment = async (id, data) => {
         apartment: apartment
     };   
 };
+
+export const deleteApartment = async(id) => {
+    //Tim apartment theo id
+    const apartment = await Apartment.findByPk(id);
+
+    //Neu apartment khong ton tai
+    if (!apartment){
+        throw new Error("Apartment này không tồn tại !")
+    }
+
+    
+    const user = await User.findOne({
+        where: {
+            apartment_id: id
+        }
+    });
+
+    //Kiem tra apartment co User dang thuoc khong
+    if (user){
+        throw new Error("Apartment này đang có người ở!")
+    }
+
+    //Xóa apartment
+    await Apartment.destroy(id);
+
+    return {
+        message: "Xóa căn hộ thành công",
+    }
+}
 
