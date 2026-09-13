@@ -96,14 +96,15 @@
 ## Ngày 8 — Chủ Nhật, 13/09/2026
 
 - Làm gì hôm nay:
-    1. 
+    1. Hoàn thành phần get apartment
 - Thời gian:  giờ
 - Vướng gì:
     1. 
 - Giải quyết ra sao (hoặc chưa):
     1. 
 - Dùng AI ở đâu:
-    1. 
+    1. review code lấy danh sách apartment
+     - Link: https://chatgpt.com/share/6aa68228-3520-83ec-b323-687e9afa2a0c
 - Mai làm gì:
     1. 
 

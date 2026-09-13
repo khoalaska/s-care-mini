@@ -1,5 +1,8 @@
 
-import {createApartment as createApartmentService} from "../services/ApartmentService.js"
+import {createApartment as createApartmentService,
+        getApartments as getApartmentsService,
+        updateApartment as updateApartmentService
+} from "../services/ApartmentService.js"
 
 export const createApartment = async(req, res) => {
 
@@ -14,5 +17,28 @@ export const createApartment = async(req, res) => {
 
     res.status(201).json(result);
 
+}
 
+export const getApartments = async(req, res) => {
+    //lay du lieu tu query
+    const {page, limit} = req.query;
+
+    // goi service
+    const result = await getApartmentsService({
+        page,
+        limit
+    });
+
+    //tra response
+    res.status(200).json(result);
+}
+
+export const updateApartment = async (req, res) => {
+    const { id } = req.params;
+
+    const data = req.body;
+
+    const result = await updateApartmentService(id, data);
+
+    res.status(200).json(result);
 }
