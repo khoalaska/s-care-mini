@@ -212,7 +212,9 @@ export const deleteApartment = async(id) => {
     }
 
     //Xóa apartment
-    await Apartment.destroy(id);
+    await Apartment.destroy({
+        where : {id}
+    });
 
     return {
         message: "Xóa căn hộ thành công",
