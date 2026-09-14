@@ -1,5 +1,6 @@
 import { createRequest as createRequestService,
-        getRequests as getRequestsService
+        getRequests as getRequestsService,
+        uploadImages as uploadImageService
  } from "../services/RequestService.js";
 
 export const createRequest = async (req, res) => {
@@ -49,5 +50,19 @@ export const getRequests = async (req, res) => {
 
     //tra ket qua
     res.status(200).json(result);
+
+}
+
+export const uploadImages = async (req, res) => {
+    const requestId = req.params.id;
+
+    const userId = req.user.userId;
+
+    const files = req.files;
+
+    const result = await uploadImageService(requestId, userId, files);
+
+    res.status(201).json(result);
+
 
 }

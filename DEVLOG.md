@@ -97,14 +97,19 @@
 
 - Làm gì hôm nay:
     1. Hoàn thành phần get apartment
-- Thời gian:  giờ
+    2. Hoàn thành phần A2
+    3. Hoàn thành phần A3
+- Thời gian: 10 giờ
 - Vướng gì:
-    1. 
+    1. chức năng upload ảnh
+
 - Giải quyết ra sao (hoặc chưa):
-    1. 
+    1. xem code gợi ý từ AI
 - Dùng AI ở đâu:
     1. review code lấy danh sách apartment
      - Link: https://chatgpt.com/share/6aa68228-3520-83ec-b323-687e9afa2a0c
+    2. xem code gợi ý chức năng upload ảnh
+     - Link: https://chatgpt.com/share/6aa76194-11e0-83ec-adf0-7b37f8beeb92
 - Mai làm gì:
     1. 
 

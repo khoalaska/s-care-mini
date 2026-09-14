@@ -1,5 +1,7 @@
 import Request from "../models/Request.js";
 import { Op } from "sequelize";
+import RequestImage from "../models/RequestImage.js";
+import User from "../models/User.js";
 
 export const createRequest = async (
     {
@@ -174,3 +176,61 @@ export const getRequests = async ({
 
 
 }
+
+export const uploadImages = async (
+    requestId,
+    userId,
+    files
+) => {
+   
+    const request = await Request.findOne({
+        where : {
+            id : requestId
+        }
+    });
+
+     // kiem tra request co ton tai khong
+     if (!request) {
+        throw new Error("Request này không tồn tại !");
+     }
+    
+    // kiem tra request co thuoc ve resident hiện tại không
+    if (request.created_by !== userId) {
+        throw new Error("Request này không thuộc về bạn !");
+    }
+
+    // số ảnh hiện tại của request
+    const imagesCurrent = await RequestImage.count({
+        where : {
+            request_id : requestId
+        }
+        
+    });
+
+    files = files || [];
+
+    if (!files) {
+        throw new Error("Cần thêm ảnh")
+    }
+
+    const imagesAll = imagesCurrent + files.length;
+
+    if (imagesAll > 3) {
+        throw new Error("Tổng số ảnh không được quá 3 !");
+    }
+
+    const imageData = files.map((file) => {
+        return {
+            request_id : requestId,
+            image_url : `/uploads/${file.filename}`
+
+        };
+    });
+     const images = await RequestImage.bulkCreate(imageData);
+
+     return {
+        images
+     }
+
+
+} 

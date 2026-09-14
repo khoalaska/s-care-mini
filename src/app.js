@@ -9,6 +9,7 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/apartments", apartmentRoutes);
 app.use("/requests", requestRoutes);
+app.use("/uploads", express.static("uploads"));
 
 app.get("/health", (req, res) => {
     res.json({
