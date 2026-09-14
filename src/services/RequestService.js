@@ -140,16 +140,15 @@ export const getRequests = async ({
         where.created_at = {};
 
         if(from_date !== undefined){
-            const startDate = new Date(from_date);
-            startDate.setHours(0,0,0,0);
+            const startDate = new Date(`${from_date}T00:00:00`);
             where.created_at[Op.gte]= startDate;
             
         }
 
         if(to_date !== undefined){
-            const endDate = new Date(to_date);
-            endDate.setHours(23, 59, 59, 999);
-            where.created_at[Op.lte]= endDate;
+            const endDate = new Date(`${to_date}T00:00:00`);
+            endDate.setDate(endDate.getDate() + 1);
+            where.created_at[Op.lt]= endDate;
             
         }
     }
@@ -209,7 +208,7 @@ export const uploadImages = async (
 
     files = files || [];
 
-    if (!files) {
+    if (files.length === 0) {
         throw new Error("Cần thêm ảnh")
     }
 

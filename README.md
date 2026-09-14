@@ -4,7 +4,7 @@
 |---|---|---|---|
 | A1 | Xác thực & phân quyền |hoàn thành | |
 | A2 | Căn hộ & cư dân | hoàn thành | |
-| A3 | Yêu cầu (Request) | sắp hoàn thành ||
+| A3 | Yêu cầu (Request) | hoàn thành ||
 | A4 | Vòng đời trạng thái | | |
 | A5 | Phân công & xử lý đồng thời | | |
 | A6 | SLA & leo thang | | |
