@@ -1,6 +1,7 @@
 import { createRequest as createRequestService,
         getRequests as getRequestsService,
-        uploadImages as uploadImageService
+        uploadImages as uploadImageService,
+        updateStatus as updateStatusService
  } from "../services/RequestService.js";
 
 export const createRequest = async (req, res) => {
@@ -64,5 +65,20 @@ export const uploadImages = async (req, res) => {
 
     res.status(201).json(result);
 
+}
 
+export const updateStatus = async (req, res) => {
+
+    const requestId = req.params.id;
+    const userId = req.user.userId;
+    const {newStatus, note} = req.body;
+    const role = req.user.role;
+    const result = await updateStatusService( {
+    requestId,
+    newStatus,
+    userId,
+    role,
+    note});
+
+    res.status(200).json(result);
 }

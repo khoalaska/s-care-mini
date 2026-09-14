@@ -113,6 +113,23 @@
 - Mai làm gì:
     1. 
 
+## Ngày 9 — Thứ Hai, 14/09/2026
+
+- Làm gì hôm nay:
+    1. Sửa chức năng upload ảnh
+    2. Hoàn thành phần 4
+- Thời gian:  giờ
+- Vướng gì:
+    1. chưa hiểu cách xử lí lỗi tập trung
+
+- Giải quyết ra sao (hoặc chưa):
+    1. xem code gợi ý từ AI
+- Dùng AI ở đâu:
+    1. tìm hiểu về cách xử lí lỗi tập trung
+     - Link: https://chatgpt.com/share/6aa86194-f0e4-83ec-96b8-0376a7de2285
+- Mai làm gì:
+    1. 
+
 
 
 

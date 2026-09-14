@@ -1,7 +1,31 @@
 import Request from "../models/Request.js";
-import { Op } from "sequelize";
+import { Op} from "sequelize";
 import RequestImage from "../models/RequestImage.js";
 import User from "../models/User.js";
+import RequestHistory from "../models/RequestHistory.js";
+
+const transitions = {
+    NEW: ["ASSIGNED", "REJECTED", "CANCELLED"],
+    ASSIGNED: ["IN_PROGRESS", "REJECTED"],
+    IN_PROGRESS: ["DONE"],
+    DONE: ["CLOSED"],
+    CLOSED: [],
+    REJECTED: [],
+    CANCELLED: []
+};
+
+const transitionRoles = {
+    "NEW->ASSIGNED": ["MANAGER"],
+    "NEW->REJECTED": ["MANAGER"],
+    "NEW->CANCELLED": ["RESIDENT"],
+
+    "ASSIGNED->IN_PROGRESS": ["TECHNICIAN"],
+    "ASSIGNED->REJECTED": ["MANAGER"],
+
+    "IN_PROGRESS->DONE": ["TECHNICIAN"],
+
+    "DONE->CLOSED": ["RESIDENT"]
+};
 
 export const createRequest = async (
     {
@@ -233,3 +257,76 @@ export const uploadImages = async (
 
 
 } 
+
+export const updateStatus = async ({
+    requestId,
+    newStatus,
+    userId,
+    role,
+    note
+}) => {
+    const request = await Request.findOne({
+        where:{
+             id : requestId
+        }
+       
+    });
+
+    //kiem tra request ton tai
+    if (!request) {
+        throw new Error("Yêu cầu này không tồn tại !")
+    }
+
+    const statusCurrent = request.status;
+
+    if (!transitions[statusCurrent].includes(newStatus)){
+        throw new Error("Lỗi chuyển trạng thái !");
+    }
+
+    if (!transitionRoles[`${statusCurrent}->${newStatus}`].includes(role)){
+        throw new Error("Bạn không có quyền thay đổi trạng thái này !")
+    }
+
+    if (newStatus === "REJECTED" && !note) {
+        throw new Error("Bạn cần nhập lí do từ chối !")
+    }
+
+    //Kiểm tra ownership / assignment
+    if (newStatus === "CANCELLED" || newStatus === "CLOSED") {
+        if (request.created_by !== userId){
+            throw new Error("Bạn không phải người tạo yêu cầu này!")
+        }
+    }
+
+    if (newStatus === "IN_PROGRESS" || newStatus === "DONE") {
+        if (request.assigned_to !== userId) {
+            throw new Error("Bạn không được gán vào yêu cầu này!")
+        }    
+    }
+
+    
+
+    await request.update({
+        status : newStatus,
+    });
+
+
+    const history = await RequestHistory.create({
+        request_id : requestId,
+        updated_by : userId,
+        old_status : statusCurrent,
+        new_status : newStatus,
+        note : note
+    });
+
+    return {
+        message: "Cập nhật trạng thái thành công",
+        request,
+        history
+    }
+    
+}
+
+
+
+
