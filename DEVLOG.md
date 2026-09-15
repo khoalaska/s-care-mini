@@ -140,15 +140,15 @@
 
 - Làm gì hôm nay:
   1. Hoàn thành phần A6
-  2.
+  2. Hoàn thành phần A8, A9
 - Thời gian: giờ
 - Vướng gì:
   1. Cách chạy job mỗi 60 giây
-  2.
+  2. Viết unit test
 
 - Giải quyết ra sao (hoặc chưa):
   1. xem code gợi ý từ AI
-  2. viết test cho A6
+  2. viết test cho A6, A9
 - Dùng AI ở đâu:
   1. tham khảo code chạy job mỗi 60 giây
   - Link:

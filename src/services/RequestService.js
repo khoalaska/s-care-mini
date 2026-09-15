@@ -5,7 +5,7 @@ import RequestImage from "../models/RequestImage.js";
 import User from "../models/User.js";
 import RequestHistory from "../models/RequestHistory.js";
 import { AppError } from "../utils/AppError.js";
-const transitions = {
+export const transitions = {
   NEW: ["REJECTED", "CANCELLED"],
   ASSIGNED: ["IN_PROGRESS", "REJECTED"],
   IN_PROGRESS: ["DONE"],
@@ -15,7 +15,7 @@ const transitions = {
   CANCELLED: [],
 };
 
-const transitionRoles = {
+export const transitionRoles = {
   "NEW->ASSIGNED": ["MANAGER"],
   "NEW->REJECTED": ["MANAGER"],
   "NEW->CANCELLED": ["RESIDENT"],
