@@ -14,8 +14,6 @@ COPY . .
 # Create uploads directory
 RUN mkdir -p uploads
 
-RUN chmod +x entrypoint.sh
-
 EXPOSE 3000
 
-CMD ["sh", "entrypoint.sh"]
+CMD ["sh", "-c", "node src/seed/seed.js && node src/server.js"]
