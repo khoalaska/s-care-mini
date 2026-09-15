@@ -1,5 +1,5 @@
 import express from "express";
-import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { authMiddleware } from "../middlewares/AuthMiddleware.js";
 import { roleMiddleware } from "../middlewares/RoleMiddleware.js";
 import {
   createRequest,
@@ -8,7 +8,7 @@ import {
   updateStatus,
   assignRequest,
 } from "../controllers/RequestController.js";
-import upload from "../middlewares/uploadMiddleware.js";
+import upload from "../middlewares/UploadMiddleware.js";
 
 const router = express.Router();
 

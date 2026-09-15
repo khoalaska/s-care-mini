@@ -1,7 +1,7 @@
 import express from "express";
 import { register } from "../controllers/AuthController.js";
 import { login } from "../controllers/AuthController.js";
-import { authMiddleware }   from "../middlewares/authMiddleware.js";
+import { authMiddleware }   from "../middlewares/AuthMiddleware.js";
 import { roleMiddleware } from "../middlewares/RoleMiddleware.js";
 import { createTechnician } from "../controllers/AuthController.js";
 

@@ -1,5 +1,5 @@
 import express from "express";
-import { authMiddleware }   from "../middlewares/authMiddleware.js";
+import { authMiddleware }   from "../middlewares/AuthMiddleware.js";
 import { roleMiddleware } from "../middlewares/RoleMiddleware.js";
 import { createApartment, getApartments, updateApartment, deleteApartment } from "../controllers/ApartmentController.js";
 
