@@ -63,8 +63,10 @@ src/
 | A8  | Chất lượng kỹ thuật         | hoàn thành      |                                    |
 | A9  | Kiểm thử Jest               | hoàn thành      |                                    |
 
-## Những gì chưa làm được
+## Những gì chưa làm được (Thành thật khai báo)
 
-- **A7 — Báo cáo:** Ưu tiên hoàn thành A1–A6 trước vì là phần nghiệp vụ chính. Khi xong thì không còn đủ thời gian cho phần query thống kê.
-- **A8 — Sót lỗi nhỏ:** Một số chỗ trong service còn dùng `throw new Error()` thay vì `throw new AppError()` → client nhận 500 thay vì 400.
-- **Phần B:** Chưa làm do Phần A chưa xong 100%.
+- **A7 (Báo cáo thống kê):** Do dồn thời gian xử lý các logic chính (vòng đời yêu cầu, xử lý đồng thời, SLA) nên chưa kịp làm phần này. Dữ liệu và bảng cơ sở đã có đủ nhưng chưa viết query tổng hợp thống kê.
+- **A8 (Chất lượng kỹ thuật):**
+  - **Chưa chuẩn hóa toàn bộ lỗi:** Nhiều chỗ trong service vẫn đang quăng `throw new Error(...)` thay vì dùng class `AppError` đã tạo. Việc này khiến API thỉnh thoảng trả về HTTP 500 thay vì 400 (Bad Request). Do không còn đủ thời gian test lại toàn bộ luồng nên quyết định để nguyên thay vì sửa vội vàng.
+  - **Validate thủ công:** Hiện đang dùng các câu lệnh `if/else` thủ công để validate đầu vào thay vì dùng thư viện như Joi hay Zod.
+- **Phần B (Nâng cao):** Bỏ qua hoàn toàn do chưa hoàn thành 100% Phần A.
