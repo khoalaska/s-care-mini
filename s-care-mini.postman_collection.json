@@ -1,0 +1,433 @@
+{
+	"info": {
+		"name": "S-Care Mini API",
+		"description": "API documentation cho hệ thống S-Care Mini — Tiếp nhận & xử lý yêu cầu cư dân tòa nhà.\n\n## Hướng dẫn sử dụng\n1. Gọi **Login** trước để lấy token\n2. Token sẽ tự lưu vào biến `{{token}}` nếu bạn dùng script\n3. Hoặc copy token thủ công vào biến `token` trong tab Variables\n\n## Tài khoản seed mẫu\n- Manager: 0900000001 / 123456\n- Technician: 0900000002 / 123456\n- Resident: 0900000004 / 123456",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"description": "Xác thực & phân quyền (A1)",
+			"item": [
+				{
+					"name": "Register (Resident)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"phone_number\": \"0912345678\",\n  \"password\": \"123456\",\n  \"full_name\": \"Nguyễn Văn A\",\n  \"apartment_code\": \"A101\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "Cư dân tự đăng ký tài khoản. Phải kèm mã căn hộ hợp lệ (đã tồn tại trong hệ thống).\n\n**Role:** Không cần đăng nhập\n\n**Validate:**\n- phone_number: đúng 10 chữ số\n- password: tối thiểu 6 ký tự\n- full_name: chỉ chữ cái và khoảng trắng\n- apartment_code: dạng A101, B1234 (1 chữ in hoa + 3-4 số)"
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.access_token) {",
+									"    pm.collectionVariables.set('token', res.access_token);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"phone_number\": \"0900000001\",\n  \"password\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Đăng nhập và nhận JWT access token.\n\n**Role:** Không cần đăng nhập\n\n**Response:** access_token (tự động lưu vào biến `{{token}}`)"
+					}
+				},
+				{
+					"name": "Create Technician",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"phone_number\": \"0987654321\",\n  \"password\": \"123456\",\n  \"full_name\": \"Trần Văn Kỹ Thuật\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/technician",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "technician"]
+						},
+						"description": "Manager tạo tài khoản kỹ thuật viên.\n\n**Role:** MANAGER\n\n**Validate:**\n- phone_number: đúng 10 chữ số, chưa tồn tại\n- password: tối thiểu 6 ký tự\n- full_name: chỉ chữ cái và khoảng trắng"
+					}
+				},
+				{
+					"name": "Get Me",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "me"]
+						},
+						"description": "Xem thông tin user đang đăng nhập (từ JWT payload).\n\n**Role:** Bất kỳ (đã đăng nhập)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Apartments",
+			"description": "Quản lý căn hộ (A2) — Chỉ MANAGER",
+			"item": [
+				{
+					"name": "Create Apartment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"code\": \"A101\",\n  \"floor\": 1,\n  \"area\": 65.5,\n  \"status\": \"AVAILABLE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/apartments/create",
+							"host": ["{{baseUrl}}"],
+							"path": ["apartments", "create"]
+						},
+						"description": "Tạo căn hộ mới.\n\n**Role:** MANAGER\n\n**Validate:**\n- code: dạng A101 (1 chữ in hoa + 3-4 số), duy nhất\n- floor: số nguyên > 0\n- area: số > 0\n- status: trạng thái căn hộ"
+					}
+				},
+				{
+					"name": "Get All Apartments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/apartments?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["apartments"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Số trang (mặc định: 1)"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Số bản ghi mỗi trang (mặc định: 10, tối đa: 100)"
+								}
+							]
+						},
+						"description": "Lấy danh sách căn hộ có phân trang.\n\n**Role:** MANAGER"
+					}
+				},
+				{
+					"name": "Update Apartment",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"floor\": 2,\n  \"area\": 70.0,\n  \"status\": \"OCCUPIED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/apartments/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["apartments", "1"]
+						},
+						"description": "Cập nhật thông tin căn hộ (partial update). Chỉ gửi các field cần thay đổi.\n\n**Role:** MANAGER\n\n**Params:** id (apartment ID)"
+					}
+				},
+				{
+					"name": "Delete Apartment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/apartments/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["apartments", "1"]
+						},
+						"description": "Xóa căn hộ. Không xóa được nếu căn hộ đang có cư dân.\n\n**Role:** MANAGER\n\n**Params:** id (apartment ID)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Requests",
+			"description": "Quản lý yêu cầu cư dân (A3, A4, A5)",
+			"item": [
+				{
+					"name": "Create Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"ELECTRIC\",\n  \"description\": \"Bóng đèn hành lang tầng 3 bị cháy\",\n  \"priority\": \"MEDIUM\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/requests/create",
+							"host": ["{{baseUrl}}"],
+							"path": ["requests", "create"]
+						},
+						"description": "Cư dân tạo yêu cầu mới. Trạng thái mặc định: NEW.\n\n**Role:** RESIDENT\n\n**type:** ELECTRIC | WATER | CLEANING | SECURITY | OTHER\n**priority:** LOW | MEDIUM | HIGH\n\n**SLA (tính từ lúc tạo):**\n- HIGH: 4 giờ\n- MEDIUM: 24 giờ\n- LOW: 72 giờ"
+					}
+				},
+				{
+					"name": "Get All Requests",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/requests?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["requests"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Số trang (mặc định: 1)"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Số bản ghi mỗi trang (mặc định: 10, tối đa: 100)"
+								},
+								{
+									"key": "status",
+									"value": "NEW",
+									"description": "Lọc theo trạng thái: NEW | ASSIGNED | IN_PROGRESS | DONE | CLOSED | REJECTED | CANCELLED",
+									"disabled": true
+								},
+								{
+									"key": "type",
+									"value": "ELECTRIC",
+									"description": "Lọc theo loại: ELECTRIC | WATER | CLEANING | SECURITY | OTHER",
+									"disabled": true
+								},
+								{
+									"key": "priority",
+									"value": "HIGH",
+									"description": "Lọc theo ưu tiên: LOW | MEDIUM | HIGH",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "bóng đèn",
+									"description": "Tìm kiếm theo mô tả (LIKE %...%)",
+									"disabled": true
+								},
+								{
+									"key": "from_date",
+									"value": "2026-09-01",
+									"description": "Lọc từ ngày (YYYY-MM-DD)",
+									"disabled": true
+								},
+								{
+									"key": "to_date",
+									"value": "2026-09-15",
+									"description": "Lọc đến ngày (YYYY-MM-DD)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Lấy danh sách yêu cầu có phân trang, lọc, tìm kiếm.\n\n**Phạm vi nhìn thấy:**\n- RESIDENT: chỉ thấy yêu cầu của mình\n- TECHNICIAN: chỉ thấy việc được giao\n- MANAGER: thấy tất cả\n\n**Role:** MANAGER, RESIDENT, TECHNICIAN\n\n**Bộ lọc (tắt mặc định, bật khi cần):** status, type, priority, search, from_date, to_date"
+					}
+				},
+				{
+					"name": "Upload Images",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "images",
+									"type": "file",
+									"src": [],
+									"description": "Chọn file ảnh (tối đa 3 ảnh tổng cộng)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/requests/1/images",
+							"host": ["{{baseUrl}}"],
+							"path": ["requests", "1", "images"]
+						},
+						"description": "Upload ảnh đính kèm cho yêu cầu. Tối đa 3 ảnh mỗi yêu cầu.\n\n**Role:** RESIDENT (chủ yêu cầu)\n\n**Params:** id (request ID)\n\n**Body:** form-data, key = `images`, type = File"
+					}
+				},
+				{
+					"name": "Update Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"newStatus\": \"CANCELLED\",\n  \"note\": \"Đã tự sửa được\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/requests/1/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["requests", "1", "status"]
+						},
+						"description": "Chuyển trạng thái yêu cầu. Mỗi lần chuyển ghi lịch sử.\n\n**Luồng trạng thái hợp lệ:**\n- NEW → ASSIGNED (Manager, dùng endpoint Assign)\n- NEW → REJECTED (Manager, bắt buộc note)\n- NEW → CANCELLED (Resident tự hủy)\n- ASSIGNED → IN_PROGRESS (Technician bấm bắt đầu)\n- ASSIGNED → REJECTED (Manager, bắt buộc note)\n- IN_PROGRESS → DONE (Technician hoàn thành)\n- DONE → CLOSED (Resident xác nhận)\n\nChuyển sai luật → 409\n\n**Role:** MANAGER, RESIDENT, TECHNICIAN (tùy transition)\n\n**Params:** id (request ID)"
+					}
+				},
+				{
+					"name": "Assign Request",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"technicianId\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/requests/1/assign",
+							"host": ["{{baseUrl}}"],
+							"path": ["requests", "1", "assign"]
+						},
+						"description": "Manager giao yêu cầu cho kỹ thuật viên (NEW → ASSIGNED).\n\nXử lý race condition: nếu 2 manager giao cùng lúc, chỉ 1 lượt thành công, lượt sau nhận 409.\n\n**Role:** MANAGER\n\n**Params:** id (request ID)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"description": "Kiểm tra trạng thái server",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["health"]
+						},
+						"description": "Kiểm tra server đang chạy.\n\n**Role:** Không cần đăng nhập"
+					}
+				}
+			]
+		}
+	]
+}
