@@ -3,196 +3,193 @@ import bcrypt from "bcrypt";
 import Apartment from "../models/Apartment.js";
 import Role from "../models/Role.js";
 import jwt from "jsonwebtoken";
+import { AppError } from "../utils/AppError.js";
 
-export const register = async ({ phone_number, password, full_name,apartment_code }) => {
+export const register = async ({
+  phone_number,
+  password,
+  full_name,
+  apartment_code,
+}) => {
+  // validate dữ liệu đầu vào
+  if (!phone_number || !password || !full_name || !apartment_code) {
+    throw new AppError("Vui lòng nhập đầy đủ thông tin", 400);
+  }
 
-    // validate dữ liệu đầu vào
-    if (!phone_number || !password || !full_name || !apartment_code) {
-        throw new Error("Vui lòng nhập đầy đủ thông tin");
-    }
+  // validate code can hộ
+  const apartmentCodeRegex = /^[A-Z][0-9]{3,4}$/;
+  if (!apartmentCodeRegex.test(apartment_code)) {
+    throw new AppError("Mã căn hộ không hợp lệ", 400);
+  }
 
-    // validate code can hộ
-    const apartmentCodeRegex = /^[A-Z][0-9]{3,4}$/;
-    if (!apartmentCodeRegex.test(apartment_code)) {
-        throw new Error("Mã căn hộ không hợp lệ");
-    }
+  // validate password
+  if (password.length < 6) {
+    throw new Error("Mật khẩu phải có ít nhất 6 ký tự");
+  }
 
-     // validate password
-    if (password.length < 6) {
-        throw new Error("Mật khẩu phải có ít nhất 6 ký tự");
-    }
+  // validate full name
+  const fullNameRegex = /^[a-zA-ZÀ-ỹ\s]+$/;
+  if (!fullNameRegex.test(full_name)) {
+    throw new Error("Họ và tên không hợp lệ");
+  }
 
-    // validate full name
-    const fullNameRegex = /^[a-zA-ZÀ-ỹ\s]+$/;
-    if (!fullNameRegex.test(full_name)) {
-        throw new Error("Họ và tên không hợp lệ");
-    }
+  // validate format số điện thoại
+  const phoneNumberRegex = /^\d{10}$/;
+  if (!phoneNumberRegex.test(phone_number)) {
+    throw new Error("Số điện thoại không hợp lệ");
+  }
 
-    // validate format số điện thoại
-    const phoneNumberRegex = /^\d{10}$/;
-    if (!phoneNumberRegex.test(phone_number)) {
-        throw new Error("Số điện thoại không hợp lệ");
-    }
+  // kiểm tra số điện thoại đã tồn tại
+  const existingUser = await User.findOne({
+    where: {
+      phone_number: phone_number,
+    },
+  });
+  if (existingUser) {
+    throw new AppError("Số điện thoại đã tồn tại", 409);
+  }
 
-    // kiểm tra số điện thoại đã tồn tại
-    const existingUser = await User.findOne({
-        where: {
-            phone_number: phone_number
-        }
-    });
-    if (existingUser) {
-        throw new Error("Số điện thoại đã tồn tại");
-    }
+  // kiểm tra căn hộ tồn tại
+  const apartment = await Apartment.findOne({
+    where: {
+      code: apartment_code,
+    },
+  });
 
-   
+  if (!apartment) {
+    throw new Error("Căn hộ không tồn tại");
+  }
 
-    // kiểm tra căn hộ tồn tại
-    const apartment = await Apartment.findOne({
-        where: {
-            code: apartment_code
-        }
-    });
+  // hash password
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-    if (!apartment) {
-        throw new Error("Căn hộ không tồn tại");
-    }
+  // tạo user
+  const user = await User.create({
+    phone_number,
+    password: hashedPassword,
+    full_name,
+    apartment_id: apartment.id,
+    role_id: (await Role.findOne({ where: { name: "RESIDENT" } })).id,
+  });
 
-    // hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+  // trả kết quả
+  return {
+    message: "Ban đã đăng ký thành công",
+  };
+};
 
-    // tạo user
-    const user = await User.create({
-        phone_number,
-        password: hashedPassword,
-        full_name,
-        apartment_id: apartment.id,
-        role_id: (await Role.findOne({where: {name: 'RESIDENT'}})).id
-    });
+export const login = async ({ phone_number, password }) => {
+  // validate dữ liệu đầu vào
+  if (!phone_number || !password) {
+    throw new AppError("Vui lòng nhập đầy đủ thông tin", 400);
+  }
+  // validate format số điện thoại
+  const phoneNumberRegex = /^\d{10}$/;
+  if (!phoneNumberRegex.test(phone_number)) {
+    throw new Error("Số điện thoại không hợp lệ");
+  }
 
+  // validate password
+  if (password.length < 6) {
+    throw new Error("Mật khẩu phải có ít nhất 6 ký tự");
+  }
 
+  // tìm user theo số điện thoại
+  const user = await User.findOne({
+    where: {
+      phone_number: phone_number,
+    },
+  });
 
-    // trả kết quả
-    return {
-        message: "Ban đã đăng ký thành công",
-    };
+  // kiểm tra số điện thoại tồn tại
+  if (!user) {
+    throw new AppError("Số điện thoại không tồn tại", 401);
+  }
 
-   
-}
+  // kiểm tra mật khẩu
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    throw new AppError("Mật khẩu không đúng", 401);
+  }
 
- export const login = async ({ phone_number, password }) => {
+  // lấy role của user
+  const role = await Role.findByPk(user.role_id);
 
-        // validate dữ liệu đầu vào
-        if (!phone_number || !password) {
-            throw new Error("Vui lòng nhập đầy đủ thông tin");
-        }
-         // validate format số điện thoại
-        const phoneNumberRegex = /^\d{10}$/;
-        if (!phoneNumberRegex.test(phone_number)) {
-        throw new Error("Số điện thoại không hợp lệ");
-        }
+  //kiểm tra role của user
+  if (!role) {
+    throw new Error("Role không tồn tại");
+  }
 
-         // validate password
-        if (password.length < 6) {
-        throw new Error("Mật khẩu phải có ít nhất 6 ký tự");
-        }
+  // tạo token
+  const token = jwt.sign(
+    {
+      userId: user.id,
+      role: role.name,
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1h",
+    },
+  );
 
-        // tìm user theo số điện thoại
-        const user = await User.findOne({
-            where: {
-                phone_number: phone_number
-            }
-        });
+  // trả kết quả
+  return {
+    message: "Đăng nhập thành công",
+    access_token: token,
+  };
+};
 
-        // kiểm tra số điện thoại tồn tại
-        if (!user) {
-            throw new Error("Số điện thoại không tồn tại");
-        }
+export const createTechnician = async ({
+  phone_number,
+  password,
+  full_name,
+}) => {
+  // validate dữ liệu đầu vào
+  if (!phone_number || !password || !full_name) {
+    throw new AppError("Vui lòng nhập đầy đủ thông tin", 400);
+  }
 
-        // kiểm tra mật khẩu
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            throw new Error("Mật khẩu không đúng");
-        }
+  // validate password
+  if (password.length < 6) {
+    throw new Error("Mật khẩu phải có ít nhất 6 ký tự");
+  }
 
-        // lấy role của user
-        const role = await Role.findByPk(user.role_id);
+  // validate full name
+  const fullNameRegex = /^[a-zA-ZÀ-ỹ\s]+$/;
+  if (!fullNameRegex.test(full_name)) {
+    throw new Error("Họ và tên không hợp lệ");
+  }
 
-        //kiểm tra role của user
-        if (!role) {
-            throw new Error("Role không tồn tại");
-        }
+  // validate format số điện thoại
+  const phoneNumberRegex = /^\d{10}$/;
+  if (!phoneNumberRegex.test(phone_number)) {
+    throw new Error("Số điện thoại không hợp lệ");
+  }
 
-        // tạo token
-        const token = jwt.sign(
-            {
-                userId: user.id,
-                role: role.name
-            },
-            process.env.JWT_SECRET,
-            {
-                expiresIn: "1h"
-            }        
-        );
+  // kiểm tra số điện thoại đã tồn tại
+  const existingUser = await User.findOne({
+    where: {
+      phone_number: phone_number,
+    },
+  });
+  if (existingUser) {
+    throw new AppError("Số điện thoại đã tồn tại", 409);
+  }
 
+  // hash password
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-        // trả kết quả
-        return {
-            message: "Đăng nhập thành công",
-            access_token: token,
-        }
-    }
+  // tạo user
+  const user = await User.create({
+    phone_number,
+    password: hashedPassword,
+    full_name,
+    role_id: (await Role.findOne({ where: { name: "TECHNICIAN" } })).id,
+  });
 
-    export const createTechnician = async ({ phone_number, password, full_name}) => {
-
-    // validate dữ liệu đầu vào
-    if (!phone_number || !password || !full_name) {
-        throw new Error("Vui lòng nhập đầy đủ thông tin");
-    }
-
-     // validate password
-    if (password.length < 6) {
-        throw new Error("Mật khẩu phải có ít nhất 6 ký tự");
-    }
-
-    // validate full name
-    const fullNameRegex = /^[a-zA-ZÀ-ỹ\s]+$/;
-    if (!fullNameRegex.test(full_name)) {
-        throw new Error("Họ và tên không hợp lệ");
-    }
-
-    // validate format số điện thoại
-    const phoneNumberRegex = /^\d{10}$/;
-    if (!phoneNumberRegex.test(phone_number)) {
-        throw new Error("Số điện thoại không hợp lệ");
-    }
-
-    // kiểm tra số điện thoại đã tồn tại
-    const existingUser = await User.findOne({
-        where: {
-            phone_number: phone_number
-        }
-    });
-    if (existingUser) {
-        throw new Error("Số điện thoại đã tồn tại");
-    }
-
-    // hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // tạo user
-    const user = await User.create({
-        phone_number,
-        password: hashedPassword,
-        full_name,
-        role_id: (await Role.findOne({where: {name: 'TECHNICIAN'}})).id
-    });
-
-
-
-    // trả kết quả
-    return {
-        message: "Ban đã đăng ký thành công",
-    };
-
-   
-}
+  // trả kết quả
+  return {
+    user,
+    message: "Ban đã đăng ký thành công",
+  };
+};

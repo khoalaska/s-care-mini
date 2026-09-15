@@ -1,223 +1,214 @@
 import Apartment from "../models/Apartment.js";
 import { Op } from "sequelize";
 import User from "../models/User.js";
+import { AppError } from "../utils/AppError.js";
 
- export const createApartment = async ({code, floor, area, status}) => {
-    // kiem tra nhap input
-    if (!code || floor === undefined || area === undefined || !status) {
+export const createApartment = async ({ code, floor, area, status }) => {
+  // kiem tra nhap input
+  if (!code || floor === undefined || area === undefined || !status) {
     throw new Error("Vui lòng nhập đầy đủ thông tin");
-    }
+  }
 
-     
-    const apartmentCodeRegex = /^[A-Z][0-9]{3,4}$/;
-    // validate code can hộ
-    if (!apartmentCodeRegex.test(code)) {
-        throw new Error("Mã căn hộ không hợp lệ");
-    }
+  const apartmentCodeRegex = /^[A-Z][0-9]{3,4}$/;
+  // validate code can hộ
+  if (!apartmentCodeRegex.test(code)) {
+    throw new AppError("Mã căn hộ không hợp lệ", 400);
+  }
 
-    
-    const apartment = await Apartment.findOne({
-        where: {
-            code: code
-        }
-    });
-    // kiểm tra căn hộ tồn tại
-    if (apartment) {
-        throw new Error("Căn hộ đã tồn tại");
-    }
+  const apartment = await Apartment.findOne({
+    where: {
+      code: code,
+    },
+  });
+  // kiểm tra căn hộ tồn tại
+  if (apartment) {
+    throw new AppError("Căn hộ đã tồn tại", 409);
+  }
 
-    // kiểm tra floor có phải là số nguyên lon hon 0 không
-    if (!Number.isInteger(floor) || floor <= 0) {
-        throw new Error("Tầng phải là số nguyên lớn hơn 0")
-    }
+  // kiểm tra floor có phải là số nguyên lon hon 0 không
+  if (!Number.isInteger(floor) || floor <= 0) {
+    throw new AppError("Tầng phải là số nguyên lớn hơn 0", 400);
+  }
 
-    // kiểm tra area phải là số lớn hơn 0
-    if (typeof area !== "number" || area <= 0) {
-        throw new Error("Diện tích phải là số lớn hơn 0");
-    }
+  // kiểm tra area phải là số lớn hơn 0
+  if (typeof area !== "number" || area <= 0) {
+    throw new AppError("Diện tích phải là số lớn hơn 0", 400);
+  }
 
-    //tạo căn hộ
-    const newApartment = await Apartment.create({
-        code,
-        floor,
-        area,
-        status
+  //tạo căn hộ
+  const newApartment = await Apartment.create({
+    code,
+    floor,
+    area,
+    status,
+  });
 
-    });
-
-    return{
-        message: "Tạo căn hộ thành công",
-        apartment: newApartment
-    };
+  return {
+    message: "Tạo căn hộ thành công",
+    apartment: newApartment,
+  };
 };
 
-export const getApartments = async ({page, limit}) => {
-    //gia tri mac dinh
-    page = page || 1;
-    limit = limit || 10;
+export const getApartments = async ({ page, limit }) => {
+  //gia tri mac dinh
+  page = page || 1;
+  limit = limit || 10;
 
-    //gioi han limit
-    if (limit > 100) {
+  //gioi han limit
+  if (limit > 100) {
     throw new Error("Limit không được vượt quá 100");
-    }
+  }
 
-    //validate page va limit
+  //validate page va limit
 
-    page = Number(page);
-    limit = Number(limit);
-    if (!Number.isInteger(limit) || limit <= 0){
-        throw new Error("Limit phải là số nguyên lớn hơn 0");
-    }
+  page = Number(page);
+  limit = Number(limit);
+  if (!Number.isInteger(limit) || limit <= 0) {
+    throw new Error("Limit phải là số nguyên lớn hơn 0");
+  }
 
-    if (!Number.isInteger(page) || page <= 0){
-        throw new Error("Page phải là số nguyên lớn hơn 0");
-    }
+  if (!Number.isInteger(page) || page <= 0) {
+    throw new Error("Page phải là số nguyên lớn hơn 0");
+  }
 
+  //tinh offset
+  const offset = (page - 1) * limit;
 
-    //tinh offset
-    const offset = (page - 1) * limit;
+  //lay danh sach apartment va tong so apartment
+  const { rows, count } = await Apartment.findAndCountAll({
+    limit: limit,
+    offset: offset,
+    order: [["id", "ASC"]],
+  });
 
-    //lay danh sach apartment va tong so apartment
-    const {rows, count} = await Apartment.findAndCountAll({
-        limit: limit,
-        offset: offset,
-        order: [["id", "ASC"]]
-    });
-
-    // tra ket qua
-    return {
-        apartments: rows,
-        pagination:{
-            page: page,
-            limit: limit,
-            total: count,
-            totalPages: Math.ceil(count/ limit)
-        }
-    };
+  // tra ket qua
+  return {
+    apartments: rows,
+    pagination: {
+      page: page,
+      limit: limit,
+      total: count,
+      totalPages: Math.ceil(count / limit),
+    },
+  };
 };
 
 export const updateApartment = async (id, data) => {
-    
-    const apartment = await Apartment.findByPk(id);
+  const apartment = await Apartment.findByPk(id);
 
-    // kiem tra apartment cua id co ton tai khong
-    if(!apartment){
-        throw new Error("Căn hộ này không tồn tại!");
+  // kiem tra apartment cua id co ton tai khong
+  if (!apartment) {
+    throw new Error("Căn hộ này không tồn tại!");
+  }
+
+  // kiem tra nhap input
+  const { code, floor, area, status } = data;
+
+  if (
+    code === undefined &&
+    floor === undefined &&
+    area === undefined &&
+    status === undefined
+  ) {
+    throw new Error("Không có dữ liệu để cập nhật");
+  }
+
+  if (code !== undefined) {
+    const apartmentCodeRegex = /^[A-Z][0-9]{3,4}$/;
+    // validate code can hộ
+    if (!apartmentCodeRegex.test(code)) {
+      throw new Error("Mã căn hộ không hợp lệ");
     }
+  }
 
-    // kiem tra nhap input
-    const { code, floor, area, status } = data;
-
-    if (
-        code === undefined &&
-        floor === undefined &&
-        area === undefined &&
-        status === undefined
-    ) {
-        throw new Error("Không có dữ liệu để cập nhật");
-    }
-
-    if (code !== undefined){
-        const apartmentCodeRegex = /^[A-Z][0-9]{3,4}$/;
-        // validate code can hộ
-        if (!apartmentCodeRegex.test(code)) {
-        throw new Error("Mã căn hộ không hợp lệ");
-    }
-    }
-
-    if (floor !== undefined){
-        // kiểm tra floor có phải là số nguyên lon hon 0 không
+  if (floor !== undefined) {
+    // kiểm tra floor có phải là số nguyên lon hon 0 không
     if (!Number.isInteger(floor) || floor <= 0) {
-        throw new Error("Tầng phải là số nguyên lớn hơn 0")
-        }
+      throw new Error("Tầng phải là số nguyên lớn hơn 0");
     }
+  }
 
-    if (area !== undefined){
-         // kiểm tra area phải là số lớn hơn 0
-        if (typeof area !== "number" || area <= 0) {
-        throw new Error("Diện tích phải là số lớn hơn 0");
-        }
+  if (area !== undefined) {
+    // kiểm tra area phải là số lớn hơn 0
+    if (typeof area !== "number" || area <= 0) {
+      throw new Error("Diện tích phải là số lớn hơn 0");
     }
+  }
 
-    if (status !== undefined) {
-        if (typeof status !== "string" || status.trim() === "") {
-            throw new Error("Trạng thái không hợp lệ");
-        }
+  if (status !== undefined) {
+    if (typeof status !== "string" || status.trim() === "") {
+      throw new Error("Trạng thái không hợp lệ");
     }
+  }
 
-    if (code !== undefined){
-        const duplicateApartment = await Apartment.findOne(
-            {
-                where: {
-                    code: code,
-                    id : {
-                        [Op.ne]: id
-                    }
-                }
-            }
-
-        );
-        if (duplicateApartment) {
-            throw new Error("Mã căn hộ đã tồn tại");
-        }
-    };
-
-    //cap nhat 
-    const updateData = {};
-
-    if (code !== undefined) {
-        updateData.code = code;
+  if (code !== undefined) {
+    const duplicateApartment = await Apartment.findOne({
+      where: {
+        code: code,
+        id: {
+          [Op.ne]: id,
+        },
+      },
+    });
+    if (duplicateApartment) {
+      throw new AppError("Mã căn hộ đã tồn tại", 409);
     }
+  }
 
-    if (floor !== undefined){
-        updateData.floor = floor;
-    }
+  //cap nhat
+  const updateData = {};
 
-    if (status !== undefined){
-        updateData.status = status;
-    }
+  if (code !== undefined) {
+    updateData.code = code;
+  }
 
-    if (area !== undefined){
-        updateData.area = area;
-    }
+  if (floor !== undefined) {
+    updateData.floor = floor;
+  }
 
-    await apartment.update(updateData);
+  if (status !== undefined) {
+    updateData.status = status;
+  }
 
-    // tra ve apartment
-    return {
-        message: "Cập nhật căn hộ thành công",
-        apartment: apartment
-    };   
+  if (area !== undefined) {
+    updateData.area = area;
+  }
+
+  await apartment.update(updateData);
+
+  // tra ve apartment
+  return {
+    message: "Cập nhật căn hộ thành công",
+    apartment: apartment,
+  };
 };
 
-export const deleteApartment = async(id) => {
-    //Tim apartment theo id
-    const apartment = await Apartment.findByPk(id);
+export const deleteApartment = async (id) => {
+  //Tim apartment theo id
+  const apartment = await Apartment.findByPk(id);
 
-    //Neu apartment khong ton tai
-    if (!apartment){
-        throw new Error("Apartment này không tồn tại !")
-    }
+  //Neu apartment khong ton tai
+  if (!apartment) {
+    throw new AppError("Apartment này không tồn tại !", 404);
+  }
 
-    
-    const user = await User.findOne({
-        where: {
-            apartment_id: id
-        }
-    });
+  const user = await User.findOne({
+    where: {
+      apartment_id: id,
+    },
+  });
 
-    //Kiem tra apartment co User dang thuoc khong
-    if (user){
-        throw new Error("Apartment này đang có người ở!")
-    }
+  //Kiem tra apartment co User dang thuoc khong
+  if (user) {
+    throw new AppError("Apartment này đang có người ở!", 409);
+  }
 
-    //Xóa apartment
-    await Apartment.destroy({
-        where : {id}
-    });
+  //Xóa apartment
+  await Apartment.destroy({
+    where: { id },
+  });
 
-    return {
-        message: "Xóa căn hộ thành công",
-    }
-}
-
+  return {
+    message: "Xóa căn hộ thành công",
+  };
+};

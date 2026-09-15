@@ -15,9 +15,9 @@ app.use("/uploads", express.static("uploads"));
 app.use(errorMiddleware);
 
 app.get("/health", (req, res) => {
-    res.json({
-        status: "ok"
-    });
+  res.json({
+    status: "ok",
+  });
 });
 
 export default app;
