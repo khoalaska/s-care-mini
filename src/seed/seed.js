@@ -21,7 +21,7 @@ const seed = async () => {
         // BƯỚC 1: Đồng bộ database
         // =========================================================
 
-        await sequelize.sync({ alter: true });
+        await sequelize.sync({ force: true });
 
         console.log("Database sync successful.");
 
