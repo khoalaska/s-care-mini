@@ -1,54 +1,51 @@
+import {
+  createApartment as createApartmentService,
+  getApartments as getApartmentsService,
+  updateApartment as updateApartmentService,
+  deleteApartment as deleteApartmentService,
+} from "../services/ApartmentService.js";
 
-import {createApartment as createApartmentService,
-        getApartments as getApartmentsService,
-        updateApartment as updateApartmentService,
-        deleteApartment as deleteApartmentService
-} from "../services/ApartmentService.js"
+export const createApartment = async (req, res) => {
+  //lay du lieu tu body
+  const { code, floor, area, status } = req.body;
 
-export const createApartment = async(req, res) => {
+  //goi ham tao
 
-    //lay du lieu tu body
-    const {code, floor, area, status} = req.body;
+  const result = await createApartmentService({ code, floor, area, status });
 
-    //goi ham tao 
+  //tra ket qua
 
-    const result = await createApartmentService({code, floor, area, status});
+  res.status(201).json(result);
+};
 
-    //tra ket qua 
+export const getApartments = async (req, res) => {
+  //lay du lieu tu query
+  const { page, limit } = req.query;
 
-    res.status(201).json(result);
+  // goi service
+  const result = await getApartmentsService({
+    page,
+    limit,
+  });
 
-}
-
-export const getApartments = async(req, res) => {
-    //lay du lieu tu query
-    const {page, limit} = req.query;
-
-    // goi service
-    const result = await getApartmentsService({
-        page,
-        limit
-    });
-
-    //tra response
-    res.status(200).json(result);
-}
+  //tra response
+  res.status(200).json(result);
+};
 
 export const updateApartment = async (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    const data = req.body;
+  const data = req.body;
 
-    const result = await updateApartmentService(id, data);
+  const result = await updateApartmentService(id, data);
 
-    res.status(200).json(result);
-}
+  res.status(200).json(result);
+};
 
 export const deleteApartment = async (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    const result = await deleteApartmentService(id);
+  const result = await deleteApartmentService(id);
 
-    res.status(200).json(result);
-}
-
+  res.status(200).json(result);
+};

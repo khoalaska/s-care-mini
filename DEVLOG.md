@@ -151,8 +151,11 @@
   2. viết test cho A6, A9
 - Dùng AI ở đâu:
   1. tham khảo code chạy job mỗi 60 giây
+  2. viết tài liệu postman
+  3. hỗ trợ fix lỗi không chạy được 3 lệnh để khởi động project
   - Link:
-  2. dùng toàn bộ phần code test
+  4. dùng toàn bộ phần code test
+  5. code tham khảo phần A7
   - Link :
 - Mai làm gì:
   1.
