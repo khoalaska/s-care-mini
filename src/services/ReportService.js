@@ -147,10 +147,31 @@ export const getRequestReport = async ({ from, to }) => {
     raw: true,
   });
 
+  const totalRequests = await Request.count({
+    where: dateCondition,
+  });
+
+  const overdueRequests = await Request.count({
+    where: {
+      is_overdue: true,
+      ...dateCondition,
+    },
+  });
+
+  const overdueRate =
+    totalRequests === 0
+      ? 0
+      : Number((overdueRequests / totalRequests) * 100).toFixed(2);
+
   return {
     byStatus,
     byType,
     avgProcessingTimeByType,
     topTechnicians,
+    summary: {
+      totalRequests,
+      overdueRequests,
+      overdueRate,
+    },
   };
 };
