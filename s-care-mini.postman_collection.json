@@ -411,6 +411,44 @@
 			]
 		},
 		{
+			"name": "Reports",
+			"description": "Báo cáo thống kê (A7) — Chỉ MANAGER",
+			"item": [
+				{
+					"name": "Get Requests Report",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/reports/requests?from=2026-09-01&to=2026-09-30",
+							"host": ["{{baseUrl}}"],
+							"path": ["reports", "requests"],
+							"query": [
+								{
+									"key": "from",
+									"value": "2026-09-01",
+									"description": "Lọc từ ngày (YYYY-MM-DD)",
+									"disabled": true
+								},
+								{
+									"key": "to",
+									"value": "2026-09-30",
+									"description": "Lọc đến ngày (YYYY-MM-DD)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Lấy báo cáo thống kê yêu cầu (số lượng theo trạng thái, loại và thời gian xử lý trung bình).\n\n**Role:** MANAGER\n\n**Params:** `from`, `to` (tuỳ chọn, định dạng YYYY-MM-DD)"
+					}
+				}
+			]
+		},
+		{
 			"name": "Health",
 			"description": "Kiểm tra trạng thái server",
 			"item": [

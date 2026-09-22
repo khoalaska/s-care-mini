@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import { AppError } from "../utils/AppError.js";
 import Request from "../models/Request.js";
 import RequestHistory from "../models/RequestHistory.js";
+import Role from "../models/Role.js";
 
 const isValidDate = (dateString) => {
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -113,9 +114,43 @@ export const getRequestReport = async ({ from, to }) => {
     raw: true,
   });
 
+  const topTechnicians = await User.findAll({
+    attributes: [
+      "id",
+      "full_name",
+      [literal("COUNT(`assignedRequests`.`id`)"), "completed_requests"],
+    ],
+    include: [
+      {
+        model: Role,
+        as: "role",
+        where: {
+          name: "TECHNICIAN",
+        },
+
+        attributes: [],
+      },
+      {
+        model: Request,
+        as: "assignedRequests",
+        where: {
+          status: "DONE",
+          ...dateCondition,
+        },
+        attributes: [],
+      },
+    ],
+    group: ["User.id", "User.full_name"],
+    order: [["completed_requests", "DESC"]],
+    limit: 3,
+    subQuery: false,
+    raw: true,
+  });
+
   return {
     byStatus,
     byType,
     avgProcessingTimeByType,
+    topTechnicians,
   };
 };
