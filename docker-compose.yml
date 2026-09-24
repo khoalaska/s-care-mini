@@ -32,12 +32,27 @@ services:
       DB_USER: scare
       DB_PASSWORD: scare
       JWT_SECRET: s-care-mini-jwt-secret
+      REDIS_URL: redis://redis:6379
     volumes:
       - uploads_data:/app/uploads
     depends_on:
       mysql:
         condition: service_healthy
 
+  client:
+    build: ./client
+    container_name: s-care-client
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+  redis:
+    image: redis:7-alpine
+    container_name: s-care-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
 volumes:
   mysql_data:
   uploads_data:

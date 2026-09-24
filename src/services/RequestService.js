@@ -5,6 +5,7 @@ import RequestImage from "../models/RequestImage.js";
 import User from "../models/User.js";
 import RequestHistory from "../models/RequestHistory.js";
 import { AppError } from "../utils/AppError.js";
+import { invalidateRequestReportCache } from "../utils/ReportCache.js";
 export const transitions = {
   NEW: ["REJECTED", "CANCELLED"],
   ASSIGNED: ["IN_PROGRESS", "REJECTED"],
@@ -77,6 +78,8 @@ export const createRequest = async ({
     due_at: dueAt,
     created_by,
   });
+
+  await invalidateRequestReportCache();
 
   return {
     message: "Tạo yêu cầu thành công",
@@ -302,6 +305,8 @@ export const updateStatus = async ({
     };
   });
 
+  await invalidateRequestReportCache();
+
   return result;
 };
 
@@ -363,5 +368,8 @@ export const assignRequest = async ({ requestId, technicianId, managerId }) => {
       message: "Phân công yêu cầu thành công",
     };
   });
+
+  await invalidateRequestReportCache();
+
   return result;
 };

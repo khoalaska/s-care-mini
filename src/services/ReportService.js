@@ -4,6 +4,7 @@ import { AppError } from "../utils/AppError.js";
 import Request from "../models/Request.js";
 import RequestHistory from "../models/RequestHistory.js";
 import Role from "../models/Role.js";
+import redisClient from "../config/redis.js";
 
 const isValidDate = (dateString) => {
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -66,6 +67,17 @@ export const getRequestReport = async ({ from, to }) => {
       );
     }
   }
+
+  // tạo cache key
+  const cacheKey = `reports:requests:${from || "all"}:${to || "all"}`;
+
+  const cachedReport = await redisClient.get(cacheKey);
+  //kiểm tra Redis
+  if (cachedReport) {
+    console.log("REDIS CACHE HIT:", cacheKey);
+    return JSON.parse(cachedReport);
+  }
+  console.log("REDIS CACHE MISS:", cacheKey);
 
   // 1. Dem so request theo status
   const byStatus = await Request.findAll({
@@ -161,17 +173,26 @@ export const getRequestReport = async ({ from, to }) => {
   const overdueRate =
     totalRequests === 0
       ? 0
-      : Number((overdueRequests / totalRequests) * 100).toFixed(2);
+      : Number(((overdueRequests / totalRequests) * 100).toFixed(2));
 
-  return {
-    byStatus,
-    byType,
-    avgProcessingTimeByType,
-    topTechnicians,
+  const report = {
+    period: {
+      from,
+      to,
+    },
     summary: {
       totalRequests,
       overdueRequests,
       overdueRate,
     },
+    byStatus,
+    byType,
+    avgProcessingTimeByType,
+    topTechnicians,
   };
+  await redisClient.set(cacheKey, JSON.stringify(report), {
+    EX: 300,
+  });
+
+  return report;
 };

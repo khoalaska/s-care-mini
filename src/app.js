@@ -5,6 +5,7 @@ import requestRoutes from "./routes/RequestRoutes.js";
 import { errorMiddleware } from "./middlewares/ErrorMiddleware.js";
 import { requestLogger } from "./middlewares/requestLogger.js";
 import reportRoutes from "./routes/ReportRoutes.js";
+import redisClient from "./config/redis.js";
 
 const app = express();
 app.use(requestLogger);
@@ -28,6 +29,7 @@ app.get("/health", (req, res) => {
     status: "ok",
   });
 });
+
 app.use(errorMiddleware);
 
 export default app;
