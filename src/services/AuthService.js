@@ -5,6 +5,31 @@ import Role from "../models/Role.js";
 import jwt from "jsonwebtoken";
 import { AppError } from "../utils/AppError.js";
 
+const generateAccessToken = (userId, role) => {
+  return jwt.sign(
+    {
+      userId,
+      role,
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "15m",
+    },
+  );
+};
+
+const generateRefreshToken = (userId) => {
+  return jwt.sign(
+    {
+      userId,
+    },
+    process.env.JWT_REFRESH_SECRET,
+    {
+      expiresIn: "7d",
+    },
+  );
+};
+
 export const register = async ({
   phone_number,
   password,
@@ -121,21 +146,15 @@ export const login = async ({ phone_number, password }) => {
   }
 
   // tạo token
-  const token = jwt.sign(
-    {
-      userId: user.id,
-      role: role.name,
-    },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: "1h",
-    },
-  );
+  const accessToken = generateAccessToken(user.id, role.name);
+
+  const refreshToken = generateRefreshToken(user.id);
 
   // trả kết quả
   return {
     message: "Đăng nhập thành công",
-    access_token: token,
+    access_token: accessToken,
+    refresh_token: refreshToken,
   };
 };
 
@@ -191,5 +210,37 @@ export const createTechnician = async ({
   return {
     user,
     message: "Ban đã đăng ký thành công",
+  };
+};
+
+export const refreshAccessToken = async (refreshToken) => {
+  if (!refreshToken) {
+    throw new AppError("Refresh token không được cung cấp", 401);
+  }
+
+  let decoded;
+
+  try {
+    decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+  } catch (error) {
+    throw new AppError("Refresh token không hợp lệ hoặc đã hết hạn", 401);
+  }
+
+  const user = await User.findByPk(decoded.userId);
+
+  if (!user) {
+    throw new AppError("Người dùng không tồn tại", 401);
+  }
+
+  const role = await Role.findByPk(user.role_id);
+
+  if (!role) {
+    throw new AppError("Role không tồn tại", 401);
+  }
+
+  const accessToken = generateAccessToken(user.id, role.name);
+
+  return {
+    access_token: accessToken,
   };
 };

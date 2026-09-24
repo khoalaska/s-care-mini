@@ -1,7 +1,10 @@
 import express from "express";
 import { authMiddleware } from "../middlewares/AuthMiddleware.js";
 import { roleMiddleware } from "../middlewares/RoleMiddleware.js";
-import { getRequestReport } from "../controllers/ReportController.js";
+import {
+  getRequestReport,
+  exportRequestReport,
+} from "../controllers/ReportController.js";
 
 const router = express.Router();
 
@@ -18,4 +21,10 @@ router.get(
   getRequestReport,
 );
 
+router.get(
+  "/requests/export",
+  authMiddleware,
+  roleMiddleware("MANAGER"),
+  exportRequestReport,
+);
 export default router;

@@ -1,6 +1,7 @@
 import { register as registerService } from "../services/AuthService.js";
 import { login as loginService } from "../services/AuthService.js";
 import { createTechnician as createTechnicianService } from "../services/AuthService.js";
+import { refreshAccessToken as refreshAccessTokenService } from "../services/AuthService.js";
 
 export const register = async (req, res) => {
   // lay du lieu tu request body
@@ -42,4 +43,12 @@ export const createTechnician = async (req, res) => {
 
   // tra ve ket qua cho client
   res.status(201).json(result);
+};
+
+export const refreshAccessToken = async (req, res) => {
+  const { refresh_token } = req.body;
+
+  const result = await refreshAccessTokenService(refresh_token);
+
+  res.status(200).json(result);
 };

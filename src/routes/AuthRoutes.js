@@ -4,6 +4,8 @@ import { login } from "../controllers/AuthController.js";
 import { authMiddleware } from "../middlewares/AuthMiddleware.js";
 import { roleMiddleware } from "../middlewares/RoleMiddleware.js";
 import { createTechnician } from "../controllers/AuthController.js";
+import { refreshAccessToken } from "../controllers/AuthController.js";
+import { loginRateLimiter } from "../middlewares/LoginRateLimiter.js";
 
 const router = express.Router();
 
@@ -16,7 +18,8 @@ router.post(
   createTechnician,
 );
 
-router.post("/login", login);
+router.post("/login", loginRateLimiter, login);
+router.post("/refresh", refreshAccessToken);
 
 router.get("/me", authMiddleware, (req, res) => {
   res.json(req.user);
