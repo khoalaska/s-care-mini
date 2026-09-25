@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login as loginApi } from "../api/authApi";
 import { useAuth } from "../contexts/AuthContext";
+import { Card, CardContent, Input, Button } from "../components/ui";
 
 export default function LoginPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -12,30 +13,24 @@ export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // Giải mã JWT payload (phần giữa) để lấy { userId, role }
-  // JWT có 3 phần ngăn bởi dấu chấm: header.payload.signature
   const decodeToken = (token) => {
-    const payload = token.split(".")[1]; // Lấy phần payload
-    const decoded = atob(payload); // Giải mã base64
-    return JSON.parse(decoded); // Parse thành object
+    const payload = token.split(".")[1];
+    const decoded = atob(payload);
+    return JSON.parse(decoded);
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Ngăn form reload trang
+    e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
       const res = await loginApi(phoneNumber, password);
       const token = res.data.access_token;
-
-      // Giải mã token để lấy thông tin user
       const userData = decodeToken(token);
 
-      // Lưu vào AuthContext
       login(token, userData);
 
-      // Redirect theo role
       switch (userData.role) {
         case "MANAGER":
           navigate("/manager");
@@ -51,7 +46,7 @@ export default function LoginPage() {
       }
     } catch (err) {
       setError(
-        err.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại."
+        err.response?.data?.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
       );
     } finally {
       setLoading(false);
@@ -59,66 +54,58 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        {/* Tiêu đề */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600">S-Care Mini</h1>
-          <p className="text-gray-500 mt-2">
-            Hệ thống tiếp nhận yêu cầu cư dân
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-black tracking-widest uppercase text-black">
+            S-Care Mini
+          </h2>
+          <p className="mt-2 text-sm text-gray-700 font-bold border-t-2 border-black inline-block pt-2">
+            HỆ THỐNG QUẢN LÝ SỰ CỐ
           </p>
         </div>
 
-        {/* Hiện lỗi nếu có */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
-            {error}
-          </div>
-        )}
+        <Card className="border-2 border-black bg-white rounded-none">
+          <CardContent className="p-8">
+            {error && (
+              <div className="mb-6 p-4 border-l-4 border-red-700 bg-red-50 text-red-800 text-sm font-bold">
+                {error}
+              </div>
+            )}
 
-        {/* Form đăng nhập */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Số điện thoại
-            </label>
-            <input
-              type="text"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="0900000001"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
-          </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <Input
+                label="Số điện thoại"
+                type="tel"
+                placeholder="VD: 0901234567"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                required
+              />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Mật khẩu
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
-          </div>
+              <Input
+                label="Mật khẩu"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
-          </button>
-        </form>
+              <Button
+                type="submit"
+                className="w-full text-base font-bold uppercase tracking-wider border-2 border-black rounded-none"
+                disabled={loading}
+              >
+                {loading ? "Đang xử lý..." : "Đăng nhập"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
-        {/* Link đăng ký */}
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm font-bold text-gray-700">
           Chưa có tài khoản?{" "}
-          <Link to="/register" className="text-blue-600 hover:underline">
+          <Link to="/register" className="text-blue-700 hover:underline">
             Đăng ký cư dân
           </Link>
         </p>

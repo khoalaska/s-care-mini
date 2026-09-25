@@ -2,13 +2,11 @@ import { useState } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
-// Menu items theo từng role
 const menuByRole = {
   MANAGER: [
-    { label: "Dashboard", path: "/manager", icon: "📊" },
     { label: "Yêu cầu", path: "/manager/requests", icon: "📋" },
     { label: "Căn hộ", path: "/manager/apartments", icon: "🏠" },
-    { label: "Tạo KTV", path: "/manager/create-technician", icon: "👷" },
+    { label: "Kỹ thuật viên", path: "/manager/create-technician", icon: "👷" },
   ],
   RESIDENT: [
     { label: "Yêu cầu của tôi", path: "/resident/requests", icon: "📋" },
@@ -24,6 +22,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const menus = menuByRole[user?.role] || [];
 
@@ -33,86 +32,115 @@ export default function Layout() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* === SIDEBAR === */}
-      {/* Mobile: ẩn mặc định, hiện khi bấm nút ☰ */}
-      {/* Desktop (md:): luôn hiện, width cố định 64 (256px) */}
+    <div className="flex h-screen bg-white text-gray-900 font-sans">
+      {/* === LEFT SIDEBAR === */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform transition-transform duration-200
+        className={`fixed inset-y-0 left-0 z-30 w-64 bg-[#0a2540] text-gray-200 transform transition-transform duration-200 border-r border-[#0a2540]
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-          md:translate-x-0 md:static md:block`}
+          md:translate-x-0 md:static md:block flex flex-col`}
       >
-        {/* Logo / Tên app */}
-        <div className="flex items-center justify-between h-16 px-4 border-b">
-          <h1 className="text-xl font-bold text-blue-600">S-Care Mini</h1>
-          {/* Nút đóng sidebar trên mobile */}
+        <div className="flex items-center justify-between h-14 px-4 border-b border-white/10 bg-[#06182c]">
+          <h1 className="text-lg font-bold text-white tracking-wide">S-Care Mini</h1>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="md:hidden text-gray-500 text-2xl"
+            className="md:hidden text-gray-400 hover:text-white"
           >
             ✕
           </button>
         </div>
 
-        {/* Menu items */}
-        <nav className="p-4 space-y-1">
-          {menus.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors
-                ${
-                  location.pathname === item.path
-                    ? "bg-blue-50 text-blue-700 font-medium"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
+        <nav className="flex-1 py-4 space-y-0 overflow-y-auto">
+          {menus.map((item) => {
+            const isActive = location.pathname === item.path || (item.path === '/manager/requests' && location.pathname === '/manager');
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center gap-3 px-5 py-2.5 text-sm transition-colors
+                  ${
+                    isActive
+                      ? "bg-[#113a63] text-white border-l-4 border-blue-400 font-semibold"
+                      : "text-gray-300 hover:bg-[#113a63] hover:text-white border-l-4 border-transparent"
+                  }`}
+              >
+                <span className="text-base">{item.icon}</span>
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
         </nav>
       </aside>
 
-      {/* Overlay khi sidebar mở trên mobile */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-20 md:hidden"
+          className="fixed inset-0 bg-black/40 z-20 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* === MAIN CONTENT === */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="flex items-center justify-between h-16 px-4 md:px-6 bg-white shadow-sm">
-          {/* Nút mở sidebar trên mobile */}
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="md:hidden text-gray-600 text-2xl"
-          >
-            ☰
-          </button>
-
-          <div className="hidden md:block" />
-
-          {/* User info + Logout */}
+        {/* HEADER */}
+        <header className="flex items-center justify-between h-14 px-4 md:px-6 bg-white border-b border-gray-300">
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="md:hidden text-gray-600 hover:text-gray-900 border border-gray-300 p-1 rounded"
+            >
+              ☰
+            </button>
+            <div className="hidden md:flex items-center text-sm font-semibold text-gray-700 uppercase tracking-wide">
+              Trạm Quản Lý S-Care
+            </div>
+          </div>
+
+          <div className="flex items-center gap-5">
+            {/* Vai trò */}
+            <span className="hidden sm:inline-flex items-center text-xs font-bold text-gray-500 uppercase tracking-widest px-2 py-0.5">
               {user?.role}
             </span>
-            <button
-              onClick={handleLogout}
-              className="px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
-            >
-              Đăng xuất
-            </button>
+
+            {/* Profile & Dropdown */}
+            <div className="relative">
+              <button 
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-2 hover:bg-gray-50 p-1 rounded transition-colors border border-transparent hover:border-gray-300"
+              >
+                <div className="w-8 h-8 bg-[#0a2540] text-white flex items-center justify-center font-bold text-sm">
+                  {user?.role?.charAt(0) || "U"}
+                </div>
+                <span className="text-sm font-medium text-gray-800 hidden sm:block">
+                  Tài khoản
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {dropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)}></div>
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 shadow-md z-20 py-1">
+                    <div className="px-4 py-2 border-b border-gray-200">
+                      <p className="text-sm font-bold text-gray-800">Thông tin</p>
+                      <p className="text-xs text-gray-500 truncate">{user?.phone_number || "Không có sđt"}</p>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 font-medium"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </header>
 
-        {/* Nội dung trang — React Router sẽ nhét component trang con vào đây */}
-        <main className="flex-1 overflow-auto p-4 md:p-6">
+        {/* MAIN BODY */}
+        <main className="flex-1 overflow-auto p-4 md:p-6 bg-white">
           <Outlet />
         </main>
       </div>

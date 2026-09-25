@@ -7,7 +7,10 @@ import {
 
 export const createApartment = async (req, res) => {
   //lay du lieu tu body
-  const { code, floor, area, status } = req.body;
+  let { code, floor, area, status } = req.body;
+
+  if (floor !== undefined) floor = Number(floor);
+  if (area !== undefined) area = Number(area);
 
   //goi ham tao
 
@@ -36,6 +39,9 @@ export const updateApartment = async (req, res) => {
   const { id } = req.params;
 
   const data = req.body;
+  
+  if (data.floor !== undefined) data.floor = Number(data.floor);
+  if (data.area !== undefined) data.area = Number(data.area);
 
   const result = await updateApartmentService(id, data);
 

@@ -7,6 +7,7 @@ import {
   uploadImages,
   updateStatus,
   assignRequest,
+  getRequestById,
 } from "../controllers/RequestController.js";
 import upload from "../middlewares/UploadMiddleware.js";
 
@@ -31,6 +32,8 @@ router.post(
   upload.array("images", 3),
   uploadImages,
 );
+router.get("/:id", authMiddleware, roleMiddleware("MANAGER", "RESIDENT", "TECHNICIAN"), getRequestById);
+
 router.patch(
   "/:id/status",
   authMiddleware,

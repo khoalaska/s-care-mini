@@ -213,6 +213,18 @@ export const createTechnician = async ({
   };
 };
 
+export const getTechnicians = async () => {
+  const role = await Role.findOne({ where: { name: "TECHNICIAN" } });
+  if (!role) {
+    return [];
+  }
+  const technicians = await User.findAll({
+    where: { role_id: role.id },
+    attributes: ["id", "full_name", "phone_number"]
+  });
+  return technicians;
+};
+
 export const refreshAccessToken = async (refreshToken) => {
   if (!refreshToken) {
     throw new AppError("Refresh token không được cung cấp", 401);

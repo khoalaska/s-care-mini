@@ -4,6 +4,7 @@ import {
   uploadImages as uploadImageService,
   updateStatus as updateStatusService,
   assignRequest as assignRequestService,
+  getRequestById as getRequestByIdService,
 } from "../services/RequestService.js";
 
 export const createRequest = async (req, res) => {
@@ -98,4 +99,13 @@ export const assignRequest = async (req, res) => {
 
   // 5. Trả response
   res.status(200).json(result);
+};
+
+export const getRequestById = async (req, res, next) => {
+  try {
+    const result = await getRequestByIdService(req.params.id, req.user.userId, req.user.role);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error); // Send to error middleware
+  }
 };

@@ -19,3 +19,8 @@ export const getMe = () => {
 export const createTechnician = (data) => {
   return axiosClient.post("/auth/technician", data);
 };
+
+// Lấy danh sách kỹ thuật viên
+export const getTechnicians = () => {
+  return axiosClient.get("/auth/technicians");
+};

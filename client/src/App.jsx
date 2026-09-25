@@ -8,6 +8,21 @@ import PrivateRoute from "./components/PrivateRoute";
 // Pages
 import LoginPage from "./pages/LoginPage";
 
+import RequestListPage from "./pages/manager/RequestListPage";
+import RequestDetailPage from "./pages/manager/RequestDetailPage";
+
+import MyRequestsPage from "./pages/resident/MyRequestsPage";
+import ResidentRequestDetailPage from "./pages/resident/RequestDetailPage";
+import CreateRequestPage from "./pages/resident/CreateRequestPage";
+
+import AssignedRequestsPage from "./pages/technician/AssignedRequestsPage";
+import TechRequestDetailPage from "./pages/technician/RequestDetailPage";
+
+import ApartmentListPage from "./pages/manager/ApartmentListPage";
+import DashboardPage from "./pages/manager/DashboardPage";
+import CreateTechnicianPage from "./pages/manager/CreateTechnicianPage";
+import RegisterPage from "./pages/RegisterPage";
+
 // Placeholder pages — sẽ code sau ở từng pha
 function PlaceholderPage({ title }) {
   return (
@@ -35,6 +50,7 @@ export default function App() {
     <Routes>
       {/* === TRANG CÔNG KHAI === */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
       {/* === MANAGER ROUTES === */}
       <Route
@@ -44,10 +60,11 @@ export default function App() {
           </PrivateRoute>
         }
       >
-        <Route path="/manager" element={<PlaceholderPage title="Dashboard" />} />
-        <Route path="/manager/requests" element={<PlaceholderPage title="Danh sách yêu cầu" />} />
-        <Route path="/manager/apartments" element={<PlaceholderPage title="Quản lý căn hộ" />} />
-        <Route path="/manager/create-technician" element={<PlaceholderPage title="Tạo tài khoản KTV" />} />
+        <Route path="/manager" element={<Navigate to="/manager/requests" replace />} />
+        <Route path="/manager/requests" element={<RequestListPage />} />
+        <Route path="/manager/requests/:id" element={<RequestDetailPage />} />
+        <Route path="/manager/apartments" element={<ApartmentListPage />} />
+        <Route path="/manager/create-technician" element={<CreateTechnicianPage />} />
       </Route>
 
       {/* === RESIDENT ROUTES === */}
@@ -58,8 +75,9 @@ export default function App() {
           </PrivateRoute>
         }
       >
-        <Route path="/resident/requests" element={<PlaceholderPage title="Yêu cầu của tôi" />} />
-        <Route path="/resident/create-request" element={<PlaceholderPage title="Tạo yêu cầu mới" />} />
+        <Route path="/resident/requests" element={<MyRequestsPage />} />
+        <Route path="/resident/requests/:id" element={<ResidentRequestDetailPage />} />
+        <Route path="/resident/create-request" element={<CreateRequestPage />} />
       </Route>
 
       {/* === TECHNICIAN ROUTES === */}
@@ -70,7 +88,8 @@ export default function App() {
           </PrivateRoute>
         }
       >
-        <Route path="/technician/requests" element={<PlaceholderPage title="Việc được giao" />} />
+        <Route path="/technician/requests" element={<AssignedRequestsPage />} />
+        <Route path="/technician/requests/:id" element={<TechRequestDetailPage />} />
       </Route>
 
       {/* === REDIRECT MẶC ĐỊNH === */}

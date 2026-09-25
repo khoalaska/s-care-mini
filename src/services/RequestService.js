@@ -4,6 +4,7 @@ import { sequelize } from "../config/database.js";
 import RequestImage from "../models/RequestImage.js";
 import User from "../models/User.js";
 import RequestHistory from "../models/RequestHistory.js";
+import Role from "../models/Role.js";
 import { AppError } from "../utils/AppError.js";
 import { invalidateRequestReportCache } from "../utils/ReportCache.js";
 export const transitions = {
@@ -328,6 +329,11 @@ export const assignRequest = async ({ requestId, technicianId, managerId }) => {
     throw new AppError("Kỹ thuật viên này không tồn tại !", 400);
   }
 
+  const roleObj = await Role.findByPk(technician.role_id);
+  if (!roleObj || roleObj.name !== "TECHNICIAN") {
+    throw new AppError("Người dùng này không phải là Kỹ thuật viên !", 400);
+  }
+
   const result = await sequelize.transaction(async (transaction) => {
     const [affectedRows] = await Request.update(
       {
@@ -372,4 +378,30 @@ export const assignRequest = async ({ requestId, technicianId, managerId }) => {
   await invalidateRequestReportCache();
 
   return result;
+};
+
+export const getRequestById = async (id, userId, role) => {
+  const request = await Request.findOne({
+    where: { id },
+    include: [
+      { model: RequestImage, as: "images" },
+      { model: RequestHistory, as: "histories", include: [{ model: User, as: "updatedBy", attributes: ["full_name"] }] },
+      { model: User, as: "creator", attributes: ["full_name", "phone_number", "apartment_id"] },
+      { model: User, as: "assignee", attributes: ["id", "full_name", "phone_number"] }
+    ],
+    order: [[{ model: RequestHistory, as: "histories" }, "created_at", "DESC"]]
+  });
+
+  if (!request) {
+    throw new AppError("Yêu cầu không tồn tại", 404);
+  }
+
+  if (role === "RESIDENT" && request.created_by !== userId) {
+    throw new AppError("Bạn không có quyền xem yêu cầu này", 403);
+  }
+  if (role === "TECHNICIAN" && request.assigned_to !== userId) {
+    throw new AppError("Bạn không có quyền xem yêu cầu này", 403);
+  }
+
+  return request;
 };
